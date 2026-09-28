@@ -12,4 +12,9 @@
       <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Assets\speech-bubble.png" />
+      <Resource Include="Assets\speech-bubble.png" />
+    </ItemGroup>
+
 </Project>

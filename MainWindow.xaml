@@ -174,9 +174,11 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
                         Visibility="{Binding IsConversationNotSelected, Converter={StaticResource BoolToVisibility}}">
                 
-                <TextBlock Text="o" FontSize="48" HorizontalAlignment="Center"/>
-                <TextBlock Text="Select a conversation" FontSize="18" FontWeight="SemiBold" Margin="0,15,0,0" HorizontalAlignment="Center"/>
-                <TextBlock Text="Choose a conversation from the list to view its messages." Opacity="0.6" Margin="0,8,0,0" HorizontalAlignment="Center"/>
+                <Image Source="/Assets/speech-bubble.png" Width="80" Height="80" HorizontalAlignment="Center"/>
+                <TextBlock Text="Select a conversation" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
+                           Margin="0,15,0,0" HorizontalAlignment="Center"/>
+                <TextBlock Text="Choose a conversation from the list to view its messages." Foreground="{StaticResource SecondaryTextBrush}"
+                           Margin="0,8,0,0" HorizontalAlignment="Center"/>
             </StackPanel>
             
             <Grid Visibility="{Binding IsConversationSelected, Converter={StaticResource BoolToVisibility}}">
