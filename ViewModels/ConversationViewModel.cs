@@ -13,7 +13,8 @@ public class ConversationViewModel {
     public AvatarViewModel Avatar { get; set; }
     
     public string? DisplayName => Conversation.DisplayName;
-    
+    public string Description { get; set; }
+
     public string DisplayNameShort => string.IsNullOrWhiteSpace(Conversation.DisplayName)
         ? "Unnamed conversation"
         : Conversation.DisplayName.Length > 40
@@ -22,7 +23,8 @@ public class ConversationViewModel {
     
     public int MessageCount => Conversation.MessageCount;
 
-    public DateTime? LastMessageDate => Conversation.LastMessageDate;
+    public DateTime LastMessageDate => Conversation.LastMessageDate;
+    public DateTime FirstMessageDate => Conversation.FirstMessageDate;
     
     public IEnumerable<string?> ParticipantNames => Participants
         .Select(p => p.FullName ?? p.SkypeName)
@@ -49,6 +51,15 @@ public class ConversationViewModel {
         
         if (conversation.Type == 1) {
             contact = Participants.FirstOrDefault(x => x.SkypeName == conversation.Identity);
+            if (contact != null && !string.IsNullOrWhiteSpace(contact.Mood)) {
+                Description = contact.Mood;
+            }
+            else {
+                Description = "Offline";
+            }
+        }
+        else {
+            Description = $"{Participants.Count} people";
         }
 
         Avatar = new AvatarViewModel(contact, conversation.DisplayName);

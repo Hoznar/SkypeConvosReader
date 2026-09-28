@@ -57,3 +57,5 @@ C:\Users\7drim\RiderProjects\SkypeConvosReader\SkypeConvosReader\obj\Debug\net10
 C:\Users\7drim\RiderProjects\SkypeConvosReader\SkypeConvosReader\obj\Debug\net10.0-windows\Windows\ContactInfoWindow.g.cs
 C:\Users\7drim\RiderProjects\SkypeConvosReader\SkypeConvosReader\obj\Debug\net10.0-windows\Windows\ContactInfoWindow.baml
 C:\Users\7drim\RiderProjects\SkypeConvosReader\SkypeConvosReader\obj\Debug\net10.0-windows\Styles\ComboBoxStyles.baml
+C:\Users\7drim\RiderProjects\SkypeConvosReader\SkypeConvosReader\obj\Debug\net10.0-windows\SkypeConvosReader.sourcelink.json
+C:\Users\7drim\RiderProjects\SkypeConvosReader\SkypeConvosReader\obj\Debug\net10.0-windows\Styles\ButtonStyles.baml

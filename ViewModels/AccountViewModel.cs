@@ -7,6 +7,7 @@ public class AccountViewModel {
     
     public string? SkypeName => _account.SkypeName;
     public string? FullName => _account.FullName;
+    public Contact? Contact => _account.Contact;
     
     public AvatarViewModel Avatar { get; set; }
     

@@ -68,10 +68,20 @@ public partial class MainWindow : Window {
     }
 
     private void Contact_Click(object sender, RoutedEventArgs e) {
-        if (sender is Button button && 
-            button.DataContext is MessageViewModel message && 
-            message.Contact != null) {
-            ShowContactInfo(message.Contact);
+        if (sender is not Button button) return;
+
+        switch (button.Tag) {
+            case MessageViewModel message:
+                if (message.Contact != null) ShowContactInfo(message.Contact);
+                break;
+
+            case ConversationViewModel conversation:
+                if (conversation.Participants.FirstOrDefault() != null) ShowContactInfo(conversation.Participants.First());
+                break;
+
+            case AccountViewModel account:
+                if (account.Contact != null) ShowContactInfo(account.Contact);
+                break;
         }
     }
 

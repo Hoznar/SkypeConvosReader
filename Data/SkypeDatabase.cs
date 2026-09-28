@@ -69,7 +69,8 @@ public class SkypeDatabase {
                                   c.identity,
                                   c.type,
                                   c.displayname,
-                                  c.inbox_timestamp,
+                                  MAX(m.timestamp) AS last_message_timestamp,
+                                  MIN(m.timestamp) AS first_message_timestamp,
                                   COUNT(m.id) AS message_count
                               FROM Conversations c
                               JOIN Messages m
@@ -87,7 +88,8 @@ public class SkypeDatabase {
                 Type = reader.IsDBNull(2) ? 0 : reader.GetInt32(2),
                 DisplayName = reader.IsDBNull(3) ? null : reader.GetString(3),
                 LastMessageDate = TimestampToDateTime(reader.IsDBNull(4) ? 0 : reader.GetInt64(4)),
-                MessageCount = reader.GetInt32(5),
+                FirstMessageDate = TimestampToDateTime(reader.IsDBNull(5) ? 0 : reader.GetInt64(5)),
+                MessageCount = reader.GetInt32(6),
             });
         }
         return conversations;
@@ -181,7 +183,7 @@ public class SkypeDatabase {
         return participants;
     }
 
-    public List<Message> GetMessages(int conversationId, int limit, int offset, bool descending = true) {
+    public List<Message> GetMessages(int conversationId, int limit, int offset,  bool descending = true) {
         var messages = new List<Message>();
         
         using var connection = CreateConnection();
@@ -200,6 +202,10 @@ public class SkypeDatabase {
                                   identities
                               FROM Messages
                               WHERE convo_id = @conversationId
+                              AND (
+                                  body_xml IS NOT NULL
+                                  OR type IN (10, 13)
+                              )
                               ORDER BY timestamp {(descending ? "DESC" : "ASC")}, id DESC
                               LIMIT @limit OFFSET @offset
                               """;

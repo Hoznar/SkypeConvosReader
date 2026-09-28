@@ -17,9 +17,11 @@ public class MainViewModel : INotifyPropertyChanged {
     
     public AccountViewModel? CurrentAccount { get; set; }
     public ObservableCollection<ConversationViewModel> Conversations { get; set; }
-    
     public ICollectionView ConversationsView { get; }
+    
     public ObservableCollection<MessageViewModel> Messages { get; set; }
+    public ICollectionView MessagesView { get; }
+
     public Dictionary<string, Contact> Contacts { get; set; }
 
     private string _conversationSearch = "";
@@ -139,6 +141,9 @@ public class MainViewModel : INotifyPropertyChanged {
             Conversations.Add(new ConversationViewModel(_database, conversation, Contacts));
         }
         
+        MessagesView = CollectionViewSource.GetDefaultView(Messages);
+        MessagesView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(MessageViewModel.MessageDate)));
+        
         ConversationsView = CollectionViewSource.GetDefaultView(Conversations);
         ConversationsView.Filter = FilterConversation;
         ApplySorting();
@@ -178,7 +183,7 @@ public class MainViewModel : INotifyPropertyChanged {
             case ConversationSort.MessageCount:
                 return nameof(ConversationViewModel.MessageCount);
             case ConversationSort.FirstMessage:
-                return nameof(ConversationViewModel.LastMessageDate);
+                return nameof(ConversationViewModel.FirstMessageDate);
             default:
                 return nameof(ConversationViewModel.LastMessageDate);
         }
@@ -193,7 +198,7 @@ public class MainViewModel : INotifyPropertyChanged {
             var messages = _database.GetMessages(conversation.Conversation.Id, PageSize, _currentOffset);
             if (messages.Count < PageSize) _hasMoreMessages = false;
             messages.Reverse();
-            
+
             foreach (var message in messages) {
                 var contact = GetContact(message.Author);
                 Messages.Add(new MessageViewModel(message, contact, Contacts, CurrentAccount.SkypeName == message.Author));

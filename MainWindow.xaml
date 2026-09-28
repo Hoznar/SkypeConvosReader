@@ -7,9 +7,11 @@
         xmlns:local="clr-namespace:SkypeConvosReader"
         xmlns:controls="clr-namespace:SkypeConvosReader.Controls"
         xmlns:data="clr-namespace:SkypeConvosReader.Data"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
         Title="Skype Archive" Width="1200" Height="750"
         MinWidth="900" MinHeight="600">
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320"/>
@@ -17,8 +19,10 @@
         </Grid.ColumnDefinitions>
         
         <!-- Sidebar -->
-        
-        <Border Grid.Column="0" Background="#F0FAFC" BorderBrush="#B5DDE9" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" BorderThickness="0,0,1,0"
+                Background="{StaticResource SidebarBackgroundBrush}" 
+                BorderBrush="{StaticResource BorderBrush}">
+            
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="175"/>
@@ -28,7 +32,7 @@
                 <!-- Account -->
                 <Border Grid.Row="0" Padding="20,20,20,0" Background="#00B1F4">
                     <StackPanel>
-                        <TextBlock Text="Account" Foreground="#FFFBFF" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Account" Foreground="{StaticResource WhiteBrush}" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
                         
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -36,19 +40,21 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             
-                            <controls:Avatar Grid.Column="0" Width="56" Height="56" BorderBrush="#0099DC" BorderThickness="3"
-                                             AvatarImage="{Binding CurrentAccount.Avatar.Image}" AvatarLetter="{Binding CurrentAccount.Avatar.Letter}"
-                                             AvatarColor="{Binding CurrentAccount.Avatar.Color}" HasAvatar="{Binding CurrentAccount.Avatar.HasImage}"/>
+                            <Button Grid.Column="0" Click="Contact_Click" Style="{StaticResource ClickablePersonButton}" Tag="{Binding CurrentAccount}">
+                                <controls:Avatar Grid.Column="0" Width="56" Height="56" BorderBrush="{StaticResource PrimaryDarkBrush}" BorderThickness="3"
+                                                 AvatarImage="{Binding CurrentAccount.Avatar.Image}" AvatarLetter="{Binding CurrentAccount.Avatar.Letter}"
+                                                 AvatarColor="{Binding CurrentAccount.Avatar.Color}" HasAvatar="{Binding CurrentAccount.Avatar.HasImage}"/>
+                            </Button>
                             
                             <StackPanel Grid.Column="1" Margin="12,3,0,0">
-                                <TextBlock Text="{Binding CurrentAccount.FullName}" Foreground="#FFFBFF" FontSize="17" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding CurrentAccount.SkypeName}" Foreground="#FFFBFF" FontSize="13" Opacity="0.6" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding CurrentAccount.FullName}" Foreground="{StaticResource WhiteBrush}" FontSize="17" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding CurrentAccount.SkypeName}" Foreground="{StaticResource WhiteBrush}" FontSize="13" Opacity="0.6" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Grid>
                         
                         <Button Content="Load Database" Height="32" Margin="0,18,0,0"
-                                Background="#FFFBFF" Foreground="#00B1F4" FontWeight="SemiBold"
-                                BorderThickness="2" BorderBrush="#0099DC"/>
+                                Background="#FFFBFF" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold"
+                                BorderThickness="2" BorderBrush="{StaticResource PrimaryDarkBrush}"/>
                         
                     </StackPanel>
                 </Border>
@@ -62,14 +68,14 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                         
-                    <TextBlock Text="Conversations" Foreground="#0B99DF" FontSize="12" FontWeight="SemiBold" Margin="20,20,20,10"/>
+                    <TextBlock Text="Conversations" Foreground="{StaticResource PrimaryBrush}" FontSize="12" FontWeight="SemiBold" Margin="20,20,20,10"/>
                     
                     <!-- Search -->
                     <Grid Grid.Row="1" Margin="20,0,20,10">
                         <TextBox x:Name="ConversationSearchBox"
                                  Height="32" Padding="10,0" VerticalContentAlignment="Center" 
                                  Text="{Binding ConversationSearch, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Search conversations..." Foreground="#999999" Margin="10,0" 
+                        <TextBlock Text="Search conversations..." Foreground="{StaticResource MutedTextBrush}" Margin="10,0" 
                                    VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -102,7 +108,7 @@
                         
                         <Button Grid.Column="1" Width="32" Height="32" Margin="6,0,0,0"
                             Content="{Binding SortDirectionIcon}" Click="SortDirectionButton_Click"
-                            Background="#0099DC" BorderThickness="0" Foreground="#FFFBFF"/>
+                            Background="{StaticResource PrimaryDarkBrush}" BorderThickness="0" Foreground="{StaticResource WhiteBrush}"/>
                     </Grid>
                     
                     <ListBox Grid.Row="3" 
@@ -111,7 +117,7 @@
                              SelectedItem="{Binding SelectedConversation, Mode=TwoWay}"
                              Background="Transparent"
                              BorderThickness="0,1,0,0"
-                             BorderBrush="#B5DDE9"
+                             BorderBrush="{StaticResource BorderBrush}"
                              ScrollViewer.CanContentScroll="False">
                         
                         <ListBox.Resources>
@@ -121,7 +127,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 
-                                <Border BorderBrush="#D8E5EF" BorderThickness="0,0,0,1" Padding="10">
+                                <Border BorderBrush="{StaticResource LightBorderBrush}" BorderThickness="0,0,0,1" Padding="10">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="48"/>
@@ -188,13 +194,15 @@
                         <ColumnDefinition Width="150"/>
                     </Grid.ColumnDefinitions>
                     
-                    <controls:Avatar Grid.Column="0" Width="56" Height="56"
-                                     AvatarImage="{Binding SelectedConversation.Avatar.Image}" AvatarLetter="{Binding SelectedConversation.Avatar.Letter}"
-                                     AvatarColor="{Binding SelectedConversation.Avatar.Color}" HasAvatar="{Binding SelectedConversation.Avatar.HasImage}"/>
+                    <Button Grid.Column="0" Style="{StaticResource ClickablePersonButton}" Click="Contact_Click" Tag="{Binding SelectedConversation}">
+                        <controls:Avatar Width="56" Height="56"
+                                         AvatarImage="{Binding SelectedConversation.Avatar.Image}" AvatarLetter="{Binding SelectedConversation.Avatar.Letter}"
+                                         AvatarColor="{Binding SelectedConversation.Avatar.Color}" HasAvatar="{Binding SelectedConversation.Avatar.HasImage}"/>
+                    </Button>
                             
                     <StackPanel Grid.Column="1" Margin="12,3,0,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding SelectedConversation.Conversation.DisplayName}" FontSize="17" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding SelectedConversation.MessageCountAsString}" FontSize="13" Opacity="0.6" Margin="0,3,0,0"/>
+                        <TextBlock Text="{Binding SelectedConversation.Description}" FontSize="13" Opacity="0.6" Margin="0,3,0,0"/>
                     </StackPanel>
                     
                     <StackPanel Grid.Column="2" Margin="12,3,0,0" VerticalAlignment="Center">
@@ -205,8 +213,35 @@
                 
                 <!-- Messages -->
                 <Grid Grid.Row="1">
-                    <ListBox x:Name="MessagesListBox" ItemsSource="{Binding Messages}" Loaded="MessagesListBox_Loaded" ScrollViewer.CanContentScroll="False"
-                             BorderThickness="0,1" BorderBrush="#D8E5EF" Background="Transparent" ItemContainerStyle="{StaticResource MessageListBoxItem}">    
+                    <ListBox x:Name="MessagesListBox" ItemsSource="{Binding MessagesView}" 
+                             Loaded="MessagesListBox_Loaded" ScrollViewer.CanContentScroll="False"
+                             BorderThickness="0,1" BorderBrush="{StaticResource LightBorderBrush}" Background="Transparent" 
+                             ItemContainerStyle="{StaticResource MessageListBoxItem}">
+                        
+                        <ListBox.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="20,16,20,10">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0" Height="1" Background="{StaticResource LightBorderBrush}" VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Column="1" Text="{Binding Name, StringFormat={}{0:dd/MM/yyyy}}"
+                                                       Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="12,0"/>
+
+                                            <Border Grid.Column="2" Height="1" Background="{StaticResource LightBorderBrush}" VerticalAlignment="Center"/>
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ListBox.GroupStyle>
                              
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -218,6 +253,12 @@
                                                 <Setter Property="HorizontalAlignment" Value="Left"/>
                                                 
                                                 <Style.Triggers>
+                                                    <!-- Don't use normal message style if it's a system message -->
+                                                    <DataTrigger Binding="{Binding IsSystemMessage}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                    
+                                                    <!-- Align self depending on who owns the message -->
                                                     <DataTrigger Binding="{Binding IsMine}" Value="True">
                                                         <Setter Property="HorizontalAlignment" Value="Right"/>
                                                     </DataTrigger>
@@ -230,6 +271,7 @@
                                             <RowDefinition Height="auto"/>
                                         </Grid.RowDefinitions>
                                         
+                                        <!-- Message owner + Date -->
                                         <Grid Grid.Row="0" Margin="0,0,0,4">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="48"/>
@@ -237,7 +279,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             
-                                            <Button Click="Contact_Click" Background="Transparent" BorderThickness="0" Padding="0">
+                                            <Button Click="Contact_Click" Style="{StaticResource ClickablePersonButton}" Tag="{Binding}">
                                                 <controls:Avatar Width="40" Height="40"
                                                                  AvatarImage="{Binding Avatar.Image}" AvatarLetter="{Binding Avatar.Letter}"
                                                                  AvatarColor="{Binding Avatar.Color}" HasAvatar="{Binding Avatar.HasImage}"/>
@@ -245,18 +287,21 @@
                                             
                                             <TextBlock Grid.Column="1" Text="{Binding DisplayName}" 
                                                        FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Date, StringFormat={}{0:dd/MM/yyyy}}" 
+                                            <TextBlock Grid.Column="2" Text="{Binding Date, StringFormat={}{0:HH:mm}}"
                                                        Opacity="0.6" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                         </Grid>
                                         
+                                        <!-- Message Bubble -->
                                         <Border Grid.Row="1" CornerRadius="12" Padding="12,8" Margin="48,0,0,0">
                                             <Border.Style>
                                                 <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="#C7EDFC"/>
+                                                    <!-- User is not owner -->
+                                                    <Setter Property="Background" Value="{StaticResource PrimaryLightBrush}"/>
                                                 
                                                     <Style.Triggers>
+                                                        <!-- User is owner -->
                                                         <DataTrigger Binding="{Binding IsMine}" Value="True">
-                                                            <Setter Property="Background" Value="#E5F7FD"/>
+                                                            <Setter Property="Background" Value="{StaticResource SurfaceLightBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -265,10 +310,33 @@
                                             <TextBox Background="Transparent" BorderThickness="0"
                                                      Text="{Binding Text, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"/>
                                         </Border>
+                                    </Grid>
+                                    
+                                    <!-- Is System Message -->
+                                    <Grid MaxWidth="650">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                <Style.Triggers>
+                                                    <!-- Hide system message if normal message -->
+                                                    <DataTrigger Binding="{Binding IsSystemMessage}" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
                                         
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap"
+                                                       TextAlignment="Center" HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource SecondaryTextBrush}" FontSize="13"/>
+                                            
+                                            <TextBlock Text="{Binding Date, StringFormat={}{0:HH:mm}}"
+                                                       TextAlignment="Center" HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource MutedTextBrush}" FontSize="11" Margin="0,4,0,0"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Grid>
-                                
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -284,7 +352,7 @@
                     <Grid Margin="0">
                         <TextBox x:Name="MessageSearchBox" Height="32" Margin="10,0" VerticalContentAlignment="Center" 
                                  Text="{Binding MessageSearch, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Search in messages..." Foreground="#999999" Margin="20,0" 
+                        <TextBlock Text="Search in messages..." Foreground="{StaticResource MutedTextBrush}" Margin="20,0" 
                                    VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -300,11 +368,27 @@
                         </TextBlock>
                     </Grid>
                     
-                    <DatePicker Grid.Column="1" Width="120" Height="32" Margin="6,0,6,0"
-                                SelectedDate="{Binding MessageDateFrom, Mode=TwoWay}"/>
-                    
-                    <DatePicker Grid.Column="2" Width="120" Height="32" Margin="6,0,6,0"
-                                SelectedDate="{Binding MessageDateTo, Mode=TwoWay}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,6,0">
+                        
+                        <TextBlock Text="From:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        
+                        <DatePicker Width="120" Height="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                    Foreground="{StaticResource MutedTextBrush}"
+                                    BorderThickness="2" BorderBrush="{StaticResource PrimaryDarkBrush}"
+                                    SelectedDate="{Binding MessageDateFrom, Mode=TwoWay}"
+                                    DisplayDate="{Binding SelectedConversation.Conversation.FirstMessageDate}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,6,0">
+                        
+                        <TextBlock Text="To:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        
+                        <DatePicker Width="120" Height="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                    Foreground="{StaticResource MutedTextBrush}" 
+                                    BorderThickness="2" BorderBrush="{StaticResource PrimaryDarkBrush}"
+                                    SelectedDate="{Binding MessageDateTo, Mode=TwoWay}"
+                                    DisplayDate="{Binding SelectedConversation.Conversation.LastMessageDate}"/>
+                    </StackPanel>
                 </Grid>
                 
             </Grid>

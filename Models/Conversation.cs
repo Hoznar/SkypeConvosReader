@@ -6,6 +6,7 @@ public class Conversation {
     public int Type { get; set; }
     public string? DisplayName { get; set; }
     public DateTime LastMessageDate { get; set; }
+    public DateTime FirstMessageDate { get; set; }
     
     public int MessageCount { get; set; }
 }

@@ -18,7 +18,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <Border Grid.Row="0" BorderThickness="0,0,0,1" Padding="0,0,0,10" BorderBrush="#D8E5EF">
+            <Border Grid.Row="0" BorderThickness="0,0,0,1" Padding="0,0,0,10" BorderBrush="{StaticResource LightBorderBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
@@ -39,7 +39,7 @@
 
             <!-- About -->
             <StackPanel Grid.Row="1" Margin="0,14,0,0">
-                <TextBlock Text="About" Foreground="#0B99DF" FontWeight="Bold" Margin="0,0,0,8"/>
+                <TextBlock Text="About" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold" Margin="0,0,0,8"/>
                 <TextBlock Text="{Binding About}" TextWrapping="Wrap"/>
             </StackPanel>
             
@@ -50,7 +50,7 @@
                 </Grid.ColumnDefinitions>
                 
                 <StackPanel Grid.Column="0" Margin="0,24,0,0">
-                    <TextBlock Text="Basic Information" Foreground="#0B99DF" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <TextBlock Text="Basic Information" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>
@@ -65,26 +65,26 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Foreground="#666666" Text="Gender:"/>
+                        <TextBlock Grid.Row="0" Foreground="{StaticResource SecondaryTextBrush}" Text="Gender:"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Gender}"/>
 
-                        <TextBlock Grid.Row="1" Foreground="#666666" Text="Birthday:"/>
+                        <TextBlock Grid.Row="1" Foreground="{StaticResource SecondaryTextBrush}" Text="Birthday:"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Birthday}"/>
 
-                        <TextBlock Grid.Row="2" Foreground="#666666" Text="Country:"/>
+                        <TextBlock Grid.Row="2" Foreground="{StaticResource SecondaryTextBrush}" Text="Country:"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Country}"/>
 
-                        <TextBlock Grid.Row="3" Foreground="#666666" Text="Province:"/>
+                        <TextBlock Grid.Row="3" Foreground="{StaticResource SecondaryTextBrush}" Text="Province:"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Province}"/>
 
-                        <TextBlock Grid.Row="4" Foreground="#666666" Text="City:"/>
+                        <TextBlock Grid.Row="4" Foreground="{StaticResource SecondaryTextBrush}" Text="City:"/>
                         <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding City}"/>
                     </Grid>
                 </StackPanel>
 
                 <!-- Additional information -->
                 <StackPanel Grid.Column="1" Margin="0,24,0,0">
-                    <TextBlock Text="Additional Information" Foreground="#0B99DF" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <TextBlock Text="Additional Information" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>
@@ -96,9 +96,9 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Foreground="#666666" Text="Phone:"/>
+                        <TextBlock Grid.Row="0" Foreground="{StaticResource SecondaryTextBrush}" Text="Phone:"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Phone}"/>
-                        <TextBlock Grid.Row="1" Foreground="#666666" Text="Website:"/>
+                        <TextBlock Grid.Row="1" Foreground="{StaticResource SecondaryTextBrush}" Text="Website:"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" Text="{Binding Website}"/>
                     </Grid>
                 </StackPanel>

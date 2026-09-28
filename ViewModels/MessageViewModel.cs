@@ -9,12 +9,15 @@ public class MessageViewModel {
     private readonly Message _message;
     public Contact? Contact { get; }
     public AvatarViewModel? Avatar { get; set; }
+    
+    public bool IsSystemMessage { get; set; }
     public bool IsMine { get; set; }
     
     public string? Author => _message.Author;
     public string? DisplayName { get; }
     public DateTime Date => _message.Timestamp;
-
+    public DateTime MessageDate => Date.Date;
+    
     public TimeSpan? CallDuration { get; }
     public string? Text { get; set; }
     
@@ -31,6 +34,7 @@ public class MessageViewModel {
     private void ParseBodyXML(Message message, Dictionary<string, Contact> contacts) {
         if (message.Type is 30 or 39) {
             ParseCallMessage(message);
+            IsSystemMessage = true;
         }
         else if (message.Type == 201) {
             Text = ParseAttachmentMessage(message, "image");
@@ -46,12 +50,15 @@ public class MessageViewModel {
         }
         else if (message.Type == 2) {
             Text = $"{DisplayName} changed the conversation name to {ParseClassicMessage(message.BodyXml)}";
+            IsSystemMessage = true;
         }
         else if (message.Type == 13) {
             Text = $"{DisplayName} left the chat.";
+            IsSystemMessage = true;
         }
         else if (message.Type == 10) {
             Text = ParseAddedMembersMessage(message, contacts);
+            IsSystemMessage = true;
         }
         else {
             Text = message.BodyXml;
@@ -104,7 +111,7 @@ public class MessageViewModel {
 
                 case "ended":
                     if (durationElement == null) {
-                        Text = $"{DisplayName} missed call.";
+                        Text = $"{DisplayName} missed a call.";
                     }
                     else if (int.TryParse(durationElement.Value, out int duration)) {
                         Text = $"{DisplayName} ended a call, that lasted for {FormatDuration(duration)}.";

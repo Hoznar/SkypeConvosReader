@@ -4,10 +4,142 @@
     <Style x:Key="SkypeComboBox" TargetType="ComboBox">
         <Setter Property="Foreground" Value="#FFFBFF"/>
         <Setter Property="Background" Value="#00B1F4"/>
-        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="BorderBrush" Value="#00B1F4"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <!-- Closed ComboBox / clickable area -->
+                        <ToggleButton Grid.Column="2"
+                            Focusable="False"
+                            IsChecked="{Binding
+                                Path=IsDropDownOpen,
+                                Mode=TwoWay,
+                                RelativeSource={RelativeSource TemplatedParent}}">
+
+                            <ToggleButton.Template>
+                                <ControlTemplate>
+
+                                    <Grid>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Main background -->
+                                        <Border x:Name="Border"
+                                            Grid.ColumnSpan="2"
+                                            Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"/>
+
+                                        <!-- Selected value area -->
+                                        <Border Grid.Column="0"
+                                            CornerRadius="5,0,0,5"
+                                            Margin="1"
+                                            Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"/>
+
+                                        <!-- Arrow -->
+                                        <Path x:Name="Arrow"
+                                            Grid.Column="1"
+                                            Margin="10,0,10,0"
+                                            Fill="#FFFBFF"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Data="M 0 0 L 4 4 L 8 0 Z"/>
+
+                                    </Grid>
+
+                                    <ControlTemplate.Triggers>
+
+                                        <!-- Hover -->
+                                        <Trigger
+                                            Property="ToggleButton.IsMouseOver"
+                                            Value="True">
+
+                                            <Setter
+                                                TargetName="Border"
+                                                Property="Background"
+                                                Value="#0099DC"/>
+
+                                        </Trigger>
+
+                                        <!-- Open -->
+                                        <Trigger
+                                            Property="ToggleButton.IsChecked"
+                                            Value="True">
+
+                                            <Setter
+                                                TargetName="Border"
+                                                Property="Background"
+                                                Value="#0099DC"/>
+
+                                        </Trigger>
+
+                                    </ControlTemplate.Triggers>
+
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+
+                        </ToggleButton>
+
+                        <!-- Selected item -->
+                        <ContentPresenter
+                            Name="ContentSite"
+                            IsHitTestVisible="False"
+                            Content="{TemplateBinding SelectionBoxItem}"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Margin="{TemplateBinding Padding}"
+                            TextElement.Foreground="{TemplateBinding Foreground}"/>
+
+                        <!-- Required for editable ComboBox -->
+                        <TextBox
+                            x:Name="PART_EditableTextBox"
+                            Visibility="Hidden"
+                            IsReadOnly="{TemplateBinding IsReadOnly}"/>
+
+                        <!-- Dropdown -->
+                        <Popup
+                            Name="Popup"
+                            Placement="Bottom"
+                            IsOpen="{TemplateBinding IsDropDownOpen}"
+                            AllowsTransparency="True"
+                            Focusable="False"
+                            PopupAnimation="Slide">
+
+                            <Grid
+                                Name="DropDown"
+                                SnapsToDevicePixels="True"
+                                MinWidth="{TemplateBinding ActualWidth}"
+                                MaxHeight="{TemplateBinding MaxDropDownHeight}">
+
+                                <Border
+                                    x:Name="DropDownBorder"
+                                    Background="#00B1F4"
+                                    CornerRadius="5"/>
+
+                                <ScrollViewer
+                                    SnapsToDevicePixels="True">
+
+                                    <StackPanel IsItemsHost="True"/>
+
+                                </ScrollViewer>
+
+                            </Grid>
+
+                        </Popup>
+
+                    </Grid>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
 
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
@@ -18,6 +150,29 @@
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                     <Setter Property="Padding" Value="8,6"/>
                     <Setter Property="BorderThickness" Value="0"/>
+                    
+                    <Setter Property="Template">
+                        <Setter.Value>
+
+                            <ControlTemplate TargetType="ComboBoxItem">
+
+                                <Border Background="{TemplateBinding Background}"
+                                        Padding="{TemplateBinding Padding}">
+
+                                    <ContentPresenter
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                        TextElement.Foreground="{TemplateBinding Foreground}"/>
+
+                                </Border>
+
+                            </ControlTemplate>
+
+                        </Setter.Value>
+                    </Setter>
 
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
