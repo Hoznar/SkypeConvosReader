@@ -60,6 +60,20 @@ public class MainViewModel : INotifyPropertyChanged {
     
     public string SortDirectionIcon => SortAscending ? "↑" : "↓";
 
+    private bool _orderMessagesAscending = false;
+    public bool OrderMessagesAscending {
+        get => _orderMessagesAscending;
+        set {
+            if (_orderMessagesAscending == value) return;
+            _orderMessagesAscending = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(OrderMessagesText));
+            LoadMessages(_selectedConversation);
+        }
+    }
+
+    public string OrderMessagesText => OrderMessagesAscending ? "Newest" : "Oldest";
+
     private const int PageSize = 100;
     private int _currentOffset;
     private bool _isLoading;
@@ -195,7 +209,7 @@ public class MainViewModel : INotifyPropertyChanged {
         _hasMoreMessages = true;
         
         if (conversation != null) {
-            var messages = _database.GetMessages(conversation.Conversation.Id, PageSize, _currentOffset);
+            var messages = _database.GetMessages(conversation.Conversation.Id, PageSize, _currentOffset, !_orderMessagesAscending);
             if (messages.Count < PageSize) _hasMoreMessages = false;
             messages.Reverse();
 
@@ -214,7 +228,7 @@ public class MainViewModel : INotifyPropertyChanged {
         try {
             _currentOffset += PageSize;
 
-            var messages = _database.GetMessages(_selectedConversation.Conversation.Id, PageSize, _currentOffset);
+            var messages = _database.GetMessages(_selectedConversation.Conversation.Id, PageSize, _currentOffset, !_orderMessagesAscending);
             if (messages.Count < PageSize) _hasMoreMessages = false;
 
             foreach (var message in messages) {

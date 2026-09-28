@@ -95,6 +95,12 @@ public partial class MainWindow : Window {
         }
     }
     
+    private void OrderMessagesByButton_Click(object? sender, RoutedEventArgs e) {
+        if (DataContext is MainViewModel mainViewModel) {
+            mainViewModel.OrderMessagesAscending = !mainViewModel.OrderMessagesAscending;
+        }
+    }
+    
     private void MessagesListBox_Loaded(object sender, RoutedEventArgs e) {
         _messageScrollViewer = FindVisualChild<ScrollViewer>(MessagesListBox);
         

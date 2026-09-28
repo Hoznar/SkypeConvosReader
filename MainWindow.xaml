@@ -205,9 +205,11 @@
                         <TextBlock Text="{Binding SelectedConversation.Description}" FontSize="13" Opacity="0.6" Margin="0,3,0,0"/>
                     </StackPanel>
                     
-                    <StackPanel Grid.Column="2" Margin="12,3,0,0" VerticalAlignment="Center">
-                        <ComboBox Margin="0,0,10,0"/>
-                        <ComboBox Margin="0,5,10,0"/>
+                    <StackPanel Grid.Column="2" Width="100" VerticalAlignment="Center">
+                        <TextBlock Text="Order by:" HorizontalAlignment="Left" Margin="0,0,0,5" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                        <Button Width="100" Height="35"
+                                Content="{Binding OrderMessagesText}" Click="OrderMessagesByButton_Click"
+                                Background="{StaticResource PrimaryDarkBrush}" BorderThickness="0" Foreground="{StaticResource WhiteBrush}"/>
                     </StackPanel>
                 </Grid>
                 
