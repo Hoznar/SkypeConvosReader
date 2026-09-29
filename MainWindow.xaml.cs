@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using SkypeConvosReader.Data;
 using SkypeConvosReader.Models;
 using SkypeConvosReader.ViewModels;
@@ -21,6 +22,7 @@ namespace SkypeConvosReader;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
+    private MainViewModel _viewModel;
     private SkypeDatabase? _database;
     private ContactInfoWindow? _contactInfoWindow;
     
@@ -32,25 +34,35 @@ public partial class MainWindow : Window {
     
     public MainWindow() {
         InitializeComponent();
-        LoadDatabase();
+        
+        _viewModel = new MainViewModel();
+        _viewModel.MessagesLoaded += OnMessagesLoaded;
+        DataContext = _viewModel;
     }
+    
+    private void LoadDatabase_Click(object sender, RoutedEventArgs e) {
+        var dialog = new OpenFileDialog {
+            Title = "Select Skype database",
+            Filter = "Skype database (main.db)|main.db|SQLite database (*.db)|*.db",
+            CheckFileExists = true,
+            Multiselect = false
+        };
 
-    private void LoadDatabase() {
-        _database = new SkypeDatabase(@"C:\Users\7drim\Desktop\main.db");
-        var accounts =  _database.GetAccounts();
-        
-        if (accounts.Count == 0) {
-            MessageBox.Show("No accounts found");
-            return;
+        if (dialog.ShowDialog() != true) return;
+
+        try {
+            var database = new SkypeDatabase(dialog.FileName);
+
+            if (!_viewModel.LoadDatabase(database)) {
+                MessageBox.Show("No account was found in this database.", "Invalid database", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Title = $"{_viewModel.CurrentAccount?.FullName} - {_viewModel.Conversations.Count} conversations";
         }
-        
-        var currentAccount = accounts.FirstOrDefault();
-        var conversations = _database.GetConversations();
-        Title = $"{currentAccount.FullName} - {conversations.Count} conversations";
-        
-        var viewModel = new MainViewModel(_database, currentAccount, conversations);
-        viewModel.MessagesLoaded += OnMessagesLoaded;
-        DataContext = viewModel;
+        catch (Exception ex) {
+            MessageBox.Show($"Could not load the database.\n\n{ex.Message}", "Database error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void ShowContactInfo(Contact contact) {

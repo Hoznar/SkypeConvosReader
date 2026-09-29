@@ -12,17 +12,19 @@ namespace SkypeConvosReader.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged {
 
-    private SkypeDatabase _database;
+    private SkypeDatabase? _database;
+    private bool IsDatabaseLoaded => _database != null;
+    
     public event EventHandler? MessagesLoaded;
     
     public AccountViewModel? CurrentAccount { get; set; }
-    public ObservableCollection<ConversationViewModel> Conversations { get; set; }
+    public ObservableCollection<ConversationViewModel> Conversations { get; } = new();
     public ICollectionView ConversationsView { get; }
-    
-    public ObservableCollection<MessageViewModel> Messages { get; set; }
+
+    public ObservableCollection<MessageViewModel> Messages { get; } = new();
     public ICollectionView MessagesView { get; }
 
-    public Dictionary<string, Contact> Contacts { get; set; }
+    public Dictionary<string, Contact> Contacts { get; private set; } = new();
 
     private string _conversationSearch = "";
     public string ConversationSearch {
@@ -108,8 +110,6 @@ public class MainViewModel : INotifyPropertyChanged {
             if (_messageSearch == value) return;
             _messageSearch = value;
             OnPropertyChanged();
-
-            // later: perform search
         }
     }
 
@@ -132,7 +132,57 @@ public class MainViewModel : INotifyPropertyChanged {
             OnPropertyChanged();
         }
     }
+
+    public MainViewModel() {
+        Conversations = new ObservableCollection<ConversationViewModel>();
+        Messages = new ObservableCollection<MessageViewModel>();
+        
+        MessagesView = CollectionViewSource.GetDefaultView(Messages);
+        MessagesView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(MessageViewModel.MessageDate)));
+        
+        ConversationsView = CollectionViewSource.GetDefaultView(Conversations);
+        ConversationsView.Filter = FilterConversation;
+        ApplySorting();
+    }
     
+    public bool LoadDatabase(SkypeDatabase database) {
+        _database = database;
+        
+        var accounts = _database.GetAccounts();
+        if (accounts.Count == 0) {
+            _database = null;
+            return false;
+        }
+
+        var account  = accounts.First();
+        var conversations = _database.GetConversations();
+
+        Contacts = _database.GetContacts()
+            .Where(c => !string.IsNullOrWhiteSpace(c.SkypeName))
+            .ToDictionary(c => c.SkypeName!);
+        
+        if (account.SkypeName != null && Contacts.TryGetValue(account.SkypeName, out var contact)) {
+            account.Contact = contact;
+        }
+        else if (account.SkypeName != null && account.Contact != null) {
+            Contacts[account.SkypeName] = account.Contact;
+        }
+
+        CurrentAccount = new AccountViewModel(account);
+        
+        Conversations.Clear();
+        Messages.Clear();
+        foreach (var conversation in conversations) {
+            Conversations.Add(new ConversationViewModel(_database, conversation, Contacts));
+        }
+
+        OnPropertyChanged(nameof(CurrentAccount));
+        OnPropertyChanged(nameof(Contacts));
+        OnPropertyChanged(nameof(IsDatabaseLoaded));
+
+        ConversationsView.Refresh();
+        return true;
+    }
     
     public MainViewModel(SkypeDatabase database, Account account, List<Conversation> conversations) {
         _database = database;
@@ -204,6 +254,7 @@ public class MainViewModel : INotifyPropertyChanged {
     }
 
     private void LoadMessages(ConversationViewModel? conversation) {
+        if (_database == null) return;
         Messages.Clear();
         _currentOffset = 0;
         _hasMoreMessages = true;
@@ -222,7 +273,7 @@ public class MainViewModel : INotifyPropertyChanged {
     }
 
     public bool LoadMoreMessages() {
-        if (_selectedConversation == null || _isLoading || !_hasMoreMessages) return false;
+        if (_database == null || _selectedConversation == null || _isLoading || !_hasMoreMessages) return false;
         _isLoading = true;
 
         try {

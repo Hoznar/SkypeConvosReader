@@ -52,7 +52,7 @@
                             </StackPanel>
                         </Grid>
                         
-                        <Button Content="Load Database" Height="32" Margin="0,18,0,0"
+                        <Button Content="Load Database" Click="LoadDatabase_Click" Height="32" Margin="0,18,0,0"
                                 Background="#FFFBFF" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold"
                                 BorderThickness="2" BorderBrush="{StaticResource PrimaryDarkBrush}"/>
                         

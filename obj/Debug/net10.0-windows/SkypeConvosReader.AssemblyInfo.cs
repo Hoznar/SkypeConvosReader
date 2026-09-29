@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SkypeConvosReader")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0149890654ef2ba88cc1973720ea35fb858e7a0f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2f7fc276ec0f1b2f7c3f7a9c2c2e85362f112dc9")]
 [assembly: System.Reflection.AssemblyProductAttribute("SkypeConvosReader")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SkypeConvosReader")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
