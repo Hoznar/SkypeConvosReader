@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Xml;
 using System.Xml.Linq;
 using SkypeConvosReader.Data;
 using SkypeConvosReader.Models;
@@ -6,21 +8,27 @@ using SkypeConvosReader.Models;
 namespace SkypeConvosReader.ViewModels;
 
 public class MessageViewModel {
+    
+    // Dependencies
     private readonly Message _message;
     public Contact? Contact { get; }
-    public AvatarViewModel? Avatar { get; set; }
     
+    // Triggers
     public bool IsSystemMessage { get; set; }
     public bool IsMine { get; set; }
-    
+    public bool IsAttachment { get; set; }
+
+    // View
     public string? Author => _message.Author;
+    public AvatarViewModel? Avatar { get; set; }
     public string? DisplayName { get; }
     public DateTime Date => _message.Timestamp;
     public DateTime MessageDate => Date.Date;
-    
-    public TimeSpan? CallDuration { get; }
     public string? Text { get; set; }
-    
+    public TimeSpan? CallDuration { get; }
+
+    public string? FileIconPath { get; private set; }
+
 
     public MessageViewModel(Message message, Contact? contact, Dictionary<string, Contact> contacts, bool authorIsUser) {
         _message = message;
@@ -31,6 +39,7 @@ public class MessageViewModel {
         ParseBodyXML(message,contacts);
     }
 
+    // Converts body_xml property of messages into a format ready for display.
     private void ParseBodyXML(Message message, Dictionary<string, Contact> contacts) {
         if (message.Type is 30 or 39) {
             ParseCallMessage(message);
@@ -47,6 +56,9 @@ public class MessageViewModel {
         }
         else if (message.Type == 61) {
             Text = ParseClassicMessage(message.BodyXml);
+        }
+        else if (message.Type == 63) {
+            Text = ParseContactMessage(message, contacts);
         }
         else if (message.Type == 2) {
             Text = $"{DisplayName} changed the conversation name to {ParseClassicMessage(message.BodyXml)}";
@@ -65,6 +77,7 @@ public class MessageViewModel {
         }
     }
 
+    // Removes xml tags from text
     private string ParseClassicMessage(string body) {
         try {
             var root = XElement.Parse($"<root>{body}</root>");
@@ -74,24 +87,51 @@ public class MessageViewModel {
             return body;
         }
     }
+
+    private string ParseContactMessage(Message message, Dictionary<string, Contact> contacts) {
+        IsAttachment = true;
+        FileIconPath =  "/Assets/contact-book.png";
+        
+        try {
+            var root = XElement.Parse($"<root>{message.BodyXml}</root>");
+            var contact = root.Descendants("c").FirstOrDefault();
+
+            if (contact == null) return $"Sent a contact.";
+
+            var skypeName = (string?)contact.Attribute("s");
+            var displayName = (string?)contact.Attribute("f");
+
+            return string.IsNullOrWhiteSpace(displayName)
+                ? $"Shared a contact."
+                : $"Shared a contact \"{displayName}\".";
+        }
+        catch (XmlException) {
+            return $"Shared a contact.";
+        }
+    }
     
+    // Sets an icon for the chat bubble attachment based on xml tag
     private string? ParseAttachmentMessage(Message message, string attachmentType) {
+        IsAttachment = true;
+        FileIconPath = $"/Assets/file-{attachmentType}.png";
+        
         try {
             var root = XElement.Parse($"<root>{message.BodyXml}</root>");
             var attachmentName = root
                 .Descendants("OriginalName")
                 .Select(x => (string?)x.Attribute("v"))
                 .FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
-            
+
             return string.IsNullOrWhiteSpace(attachmentName)
-                ? $"{message.FromDisplayName} sent a {attachmentType}."
-                : $"{message.FromDisplayName} sent a {attachmentType} \"{attachmentName}\"";
+                ? $"Attached a {attachmentType}."
+                : $"Attached a {attachmentType} \"{attachmentName}\"";
         }
         catch (XmlException) {
-            return $"{message.FromDisplayName} sent a {attachmentType}.";
+            return $"Attached a {attachmentType}.";
         }
     }
 
+    // Displays who started or ended a call. Displays length of the call if duration property is present.
     private void ParseCallMessage(Message message) {
         try {
             var root = XElement.Parse($"<root>{message.BodyXml}</root>");

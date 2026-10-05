@@ -23,8 +23,8 @@ public class ConversationViewModel {
     
     public int MessageCount => Conversation.MessageCount;
 
-    public DateTime LastMessageDate => Conversation.LastMessageDate;
-    public DateTime FirstMessageDate => Conversation.FirstMessageDate;
+    public DateTime? LastMessageDate => Conversation.LastMessageDate;
+    public DateTime? FirstMessageDate => Conversation.FirstMessageDate;
     
     public IEnumerable<string?> ParticipantNames => Participants
         .Select(p => p.FullName ?? p.SkypeName)

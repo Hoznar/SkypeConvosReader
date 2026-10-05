@@ -183,35 +183,49 @@ public class SkypeDatabase {
         return participants;
     }
 
-    public List<Message> GetMessages(int conversationId, int limit, int offset,  bool descending = true) {
+    public List<Message> GetMessages(int conversationId, int limit, int offset,  bool descending = true, DateTime? dateFrom = null, DateTime? dateTo = null, string? search = null) {
         var messages = new List<Message>();
         
         using var connection = CreateConnection();
         connection.Open();
         
+        var sql = """
+                  SELECT
+                      id,
+                      convo_id,
+                      author,
+                      from_dispname,
+                      timestamp,
+                      type,
+                      body_xml,
+                      identities
+                  FROM Messages
+                  WHERE convo_id = @conversationId
+                  """;
+
+        if (dateFrom.HasValue) sql += " AND timestamp >= @dateFrom";
+        if (dateTo.HasValue) sql += " AND timestamp < @dateTo";
+
+        sql += " AND (body_xml IS NOT NULL OR type IN (10, 13))";
+        
+        if (!string.IsNullOrWhiteSpace(search))
+            sql += " AND body_xml LIKE @search";
+
+        sql += descending
+            ? " ORDER BY timestamp DESC"
+            : " ORDER BY timestamp ASC";
+
+        sql += " LIMIT @limit OFFSET @offset";
+        
         using var command = connection.CreateCommand();
-        command.CommandText = $"""
-                              SELECT
-                                  id,
-                                  convo_id,
-                                  author,
-                                  from_dispname,
-                                  timestamp,
-                                  type,
-                                  body_xml,
-                                  identities
-                              FROM Messages
-                              WHERE convo_id = @conversationId
-                              AND (
-                                  body_xml IS NOT NULL
-                                  OR type IN (10, 13)
-                              )
-                              ORDER BY timestamp {(descending ? "DESC" : "ASC")}, id DESC
-                              LIMIT @limit OFFSET @offset
-                              """;
+        command.CommandText = sql;
         command.Parameters.AddWithValue("@conversationId", conversationId);
         command.Parameters.AddWithValue("@limit", limit);
         command.Parameters.AddWithValue("@offset", offset);
+        
+        if (dateFrom.HasValue) command.Parameters.AddWithValue("@dateFrom", DateTimeToTimestamp(dateFrom.Value));
+        if (dateTo.HasValue) command.Parameters.AddWithValue("@dateTo", DateTimeToTimestamp(dateTo.Value.Date.AddDays(1)));
+        if (!string.IsNullOrWhiteSpace(search)) command.Parameters.AddWithValue("@search", $"%{search}%");
         
         using var reader = command.ExecuteReader();
         while (reader.Read()) {
@@ -249,5 +263,10 @@ public class SkypeDatabase {
 
     private DateTime TimestampToDateTime(long timestamp) {
         return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestamp).ToLocalTime();
+    }
+    
+    private long DateTimeToTimestamp(DateTime dateTime) {
+        var startOfDay = dateTime.Date;
+        return new DateTimeOffset(DateTime.SpecifyKind(startOfDay, DateTimeKind.Local)).ToUnixTimeSeconds();
     }
 }

@@ -13,6 +13,7 @@ public class AvatarViewModel {
     
     public bool HasImage => Image != null;
 
+    // If user does not have a profile picture, view will display the first symbol of their username and picks a random color as a background.
     public AvatarViewModel(Contact? contact, string? fallbackName) {
         var name = contact?.FullName ?? fallbackName;
         Letter = string.IsNullOrWhiteSpace(name) ? '?' : name.Trim()[0];
@@ -23,6 +24,7 @@ public class AvatarViewModel {
         }
     }
     
+    // Converts binary data of an avatar to ImageSource ready to display.
     private ImageSource? ConvertToImage(byte[] imageData) {
         try {
             if (imageData.Length <= 1) return null;

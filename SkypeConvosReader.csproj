@@ -15,6 +15,14 @@
     <ItemGroup>
       <None Remove="Assets\speech-bubble.png" />
       <Resource Include="Assets\speech-bubble.png" />
+      <None Remove="Assets\file-doc.png" />
+      <Resource Include="Assets\file-file.png" />
+      <None Remove="Assets\file-image.png" />
+      <Resource Include="Assets\file-image.png" />
+      <None Remove="Assets\file-video.png" />
+      <Resource Include="Assets\file-video.png" />
+      <None Remove="Assets\contact-book.png" />
+      <Resource Include="Assets\contact-book.png" />
     </ItemGroup>
 
 </Project>

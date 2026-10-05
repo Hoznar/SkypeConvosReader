@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
@@ -16,6 +17,8 @@ public class MainViewModel : INotifyPropertyChanged {
     private bool IsDatabaseLoaded => _database != null;
     
     public event EventHandler? MessagesLoaded;
+    
+    private CancellationTokenSource? _searchDelayCts;
     
     public AccountViewModel? CurrentAccount { get; set; }
     public ObservableCollection<ConversationViewModel> Conversations { get; } = new();
@@ -91,6 +94,7 @@ public class MainViewModel : INotifyPropertyChanged {
                 return;
             }
             _selectedConversation = value;
+            InitializeDefaultFilters();
             LoadMessages(_selectedConversation);
             
             OnPropertyChanged();
@@ -110,6 +114,7 @@ public class MainViewModel : INotifyPropertyChanged {
             if (_messageSearch == value) return;
             _messageSearch = value;
             OnPropertyChanged();
+            DelayMessageSearch();
         }
     }
 
@@ -120,6 +125,7 @@ public class MainViewModel : INotifyPropertyChanged {
             if (_messageDateFrom == value) return;
             _messageDateFrom = value;
             OnPropertyChanged();
+            LoadMessages(_selectedConversation);
         }
     }
 
@@ -130,9 +136,10 @@ public class MainViewModel : INotifyPropertyChanged {
             if (_messageDateTo == value) return;
             _messageDateTo = value;
             OnPropertyChanged();
+            LoadMessages(_selectedConversation);
         }
     }
-
+    
     public MainViewModel() {
         Conversations = new ObservableCollection<ConversationViewModel>();
         Messages = new ObservableCollection<MessageViewModel>();
@@ -145,6 +152,7 @@ public class MainViewModel : INotifyPropertyChanged {
         ApplySorting();
     }
     
+    /* Sets up account, fetches all conversations, sets up contacts, constructs viewModels. */
     public bool LoadDatabase(SkypeDatabase database) {
         _database = database;
         
@@ -184,6 +192,8 @@ public class MainViewModel : INotifyPropertyChanged {
         return true;
     }
     
+    /* Unused method from when working with static database. */
+    /* Constructs the MainViewModel. Fetches all contacts, sets up account, creates ConversationViewModel, and sets up Filtering for conversation list. */
     public MainViewModel(SkypeDatabase database, Account account, List<Conversation> conversations) {
         _database = database;
         Conversations = new ObservableCollection<ConversationViewModel>();
@@ -215,6 +225,7 @@ public class MainViewModel : INotifyPropertyChanged {
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
+    /* Needed for up-to-date display of properties. */
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -230,6 +241,7 @@ public class MainViewModel : INotifyPropertyChanged {
         return conversation.ParticipantNames.Any(name => name.Contains(search, StringComparison.CurrentCultureIgnoreCase));
     }
 
+    /* Applies ascending or descending order of conversations. */
     private void ApplySorting() {
         using (ConversationsView.DeferRefresh()) {
             ConversationsView.SortDescriptions.Clear();
@@ -238,6 +250,7 @@ public class MainViewModel : INotifyPropertyChanged {
         }
     }
 
+    /* Sets by what property the conversation list gets ordered by. */
     private string GetSortProperty() {
         switch (ConversationSort) {
             case ConversationSort.LastMessage:
@@ -253,6 +266,7 @@ public class MainViewModel : INotifyPropertyChanged {
         }
     }
 
+    /* Gets messages with current filters from the skype database, constructs a ViewModel with needed data for display */
     private void LoadMessages(ConversationViewModel? conversation) {
         if (_database == null) return;
         Messages.Clear();
@@ -260,7 +274,7 @@ public class MainViewModel : INotifyPropertyChanged {
         _hasMoreMessages = true;
         
         if (conversation != null) {
-            var messages = _database.GetMessages(conversation.Conversation.Id, PageSize, _currentOffset, !_orderMessagesAscending);
+            var messages = _database.GetMessages(conversation.Conversation.Id, PageSize, _currentOffset, !_orderMessagesAscending, MessageDateFrom, MessageDateTo, MessageSearch);
             if (messages.Count < PageSize) _hasMoreMessages = false;
             messages.Reverse();
 
@@ -272,6 +286,7 @@ public class MainViewModel : INotifyPropertyChanged {
         }
     }
 
+    /* Implements paging. Loads more messages (with current filters) when user scrolls to the end of ListView */
     public bool LoadMoreMessages() {
         if (_database == null || _selectedConversation == null || _isLoading || !_hasMoreMessages) return false;
         _isLoading = true;
@@ -279,7 +294,7 @@ public class MainViewModel : INotifyPropertyChanged {
         try {
             _currentOffset += PageSize;
 
-            var messages = _database.GetMessages(_selectedConversation.Conversation.Id, PageSize, _currentOffset, !_orderMessagesAscending);
+            var messages = _database.GetMessages(_selectedConversation.Conversation.Id, PageSize, _currentOffset, !_orderMessagesAscending, MessageDateFrom, MessageDateTo, MessageSearch);
             if (messages.Count < PageSize) _hasMoreMessages = false;
 
             foreach (var message in messages) {
@@ -297,5 +312,32 @@ public class MainViewModel : INotifyPropertyChanged {
         if (skypeName == null) return null;
         Contacts.TryGetValue(skypeName, out var contact);
         return contact;
+    }
+
+    /* Reset the default filters, needed so the messages won't load multiple times when setting the default filter values */
+    private void InitializeDefaultFilters() {
+        _messageDateFrom = _selectedConversation?.FirstMessageDate;
+        _messageDateTo = _selectedConversation?.LastMessageDate;
+        _messageSearch = "";
+        OnPropertyChanged(nameof(MessageDateFrom));
+        OnPropertyChanged(nameof(MessageDateTo));
+        OnPropertyChanged(nameof(MessageSearch));
+    }
+
+    /* Small delay before applying message filter, to not reload on every newly typed character */
+    private async void DelayMessageSearch() {
+        _searchDelayCts?.Cancel();
+        _searchDelayCts?.Dispose();
+
+        _searchDelayCts = new CancellationTokenSource();
+        var token = _searchDelayCts.Token;
+
+        try {
+            await Task.Delay(500, token);
+            if (token.IsCancellationRequested) return;
+            LoadMessages(SelectedConversation);
+        }
+        catch (TaskCanceledException) {
+        }
     }
 }
