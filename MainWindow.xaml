@@ -43,7 +43,8 @@
                             <Button Grid.Column="0" Click="Contact_Click" Style="{StaticResource ClickablePersonButton}" Tag="{Binding CurrentAccount}">
                                 <controls:Avatar Grid.Column="0" Width="56" Height="56" BorderBrush="{StaticResource PrimaryDarkBrush}" BorderThickness="3"
                                                  AvatarImage="{Binding CurrentAccount.Avatar.Image}" AvatarLetter="{Binding CurrentAccount.Avatar.Letter}"
-                                                 AvatarColor="{Binding CurrentAccount.Avatar.Color}" HasAvatar="{Binding CurrentAccount.Avatar.HasImage}"/>
+                                                 AvatarColor="{Binding CurrentAccount.Avatar.Color}" HasAvatar="{Binding CurrentAccount.Avatar.HasImage}"
+                                                 RenderOptions.BitmapScalingMode="HighQuality"/>
                             </Button>
                             
                             <StackPanel Grid.Column="1" Margin="12,3,0,0">
@@ -134,7 +135,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         
-                                        <controls:Avatar Grid.Column="0" Width="40" Height="40" 
+                                        <controls:Avatar Grid.Column="0" Width="40" Height="40" RenderOptions.BitmapScalingMode="HighQuality"
                                                       AvatarImage="{Binding Avatar.Image}" AvatarLetter="{Binding Avatar.Letter}"
                                                       AvatarColor="{Binding Avatar.Color}" HasAvatar="{Binding Avatar.HasImage}"/>
                                         
@@ -284,7 +285,7 @@
                                             </Grid.ColumnDefinitions>
                                             
                                             <Button Click="Contact_Click" Style="{StaticResource ClickablePersonButton}" Tag="{Binding}">
-                                                <controls:Avatar Width="40" Height="40"
+                                                <controls:Avatar Width="40" Height="40" RenderOptions.BitmapScalingMode="HighQuality"
                                                                  AvatarImage="{Binding Avatar.Image}" AvatarLetter="{Binding Avatar.Letter}"
                                                                  AvatarColor="{Binding Avatar.Color}" HasAvatar="{Binding Avatar.HasImage}"/>
                                             </Button>
@@ -312,7 +313,8 @@
                                             </Border.Style>
                                             
                                             <!-- Attachment Image -->
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" 
+                                                        UseLayoutRounding="True" SnapsToDevicePixels="True">
                                                 <Image Source="{Binding FileIconPath}" Width="32" Height="32" Margin="0,0,10,0">
                                                     <Image.Style>
                                                         <Style TargetType="Image">
